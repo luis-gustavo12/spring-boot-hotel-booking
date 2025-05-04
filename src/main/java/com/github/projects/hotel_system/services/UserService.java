@@ -3,7 +3,7 @@ package com.github.projects.hotel_system.services;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -26,7 +26,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    @Autowired
     public UserService (UserRepository repository, PasswordEncoder encoder) {
         this.userRepository = repository;
         this.passwordEncoder = encoder;
@@ -53,6 +52,7 @@ public class UserService {
         user.setRole(request.role());
         user.setAddress(request.address());
         user.setActive(true);
+        user.setZipCode(request.zipCode());
 
         User createdUser = userRepository.save(user);
 

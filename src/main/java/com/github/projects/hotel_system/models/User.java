@@ -46,6 +46,9 @@ public class User {
     @Column(name = "address", length = 40)
     private String address;
 
+    @Column(name = "zip_code", length = 50)
+    private String zipCode;
+
     @Column(name = "is_active")
     private boolean isActive;
 

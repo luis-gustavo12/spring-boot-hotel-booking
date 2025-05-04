@@ -17,5 +17,12 @@ public class GlobalExceptionHandler {
 
     }
 
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<?> handleUserNotFound(UserNotFoundException ex) {
+
+        return ResponseEntity.badRequest()
+            .body(new ErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND.value()));
+    }
+
     
 }
