@@ -18,10 +18,12 @@ public class AuthenticationService {
 
     private final BCryptPasswordEncoder encoder;
     private final UserRepository userRepository;
+    private final JWTService jwtService;
 
-    public AuthenticationService(BCryptPasswordEncoder encoder, UserRepository repository) {
+    public AuthenticationService(BCryptPasswordEncoder encoder, UserRepository repository, JWTService jwtService) {
         this.encoder = encoder;
         this.userRepository = repository;
+        this.jwtService = jwtService;
     }
 
     // Authenticate login
@@ -39,11 +41,15 @@ public class AuthenticationService {
             throw new UserNotFoundException("Password doesn't match!!");
         }
 
-        return new LoginResponse("Authenticated Successfully!!", HttpStatus.OK.value(), "TOKEN");
+        return new LoginResponse(
+            "Authenticated Successfully!!", 
+            HttpStatus.OK.value(), 
+            jwtService.generateToken(user) 
+        );
 
     }
 
-    // Generate Token
+
 
     
 }

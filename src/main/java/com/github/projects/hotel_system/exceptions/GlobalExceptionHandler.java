@@ -24,5 +24,7 @@ public class GlobalExceptionHandler {
             .body(new ErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND.value()));
     }
 
+
+
     
 }

@@ -9,8 +9,6 @@ import com.github.projects.hotel_system.models.User;
 
 @Repository
 public interface UserRepository extends JpaRepository <User, Long> {
-    
-    Optional<User> findByEmailAndPassword(String email, String password);
 
     Optional<User> findByEmail(String email);
 

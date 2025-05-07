@@ -25,10 +25,12 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JWTService tokenService;
 
-    public UserService (UserRepository repository, PasswordEncoder encoder) {
+    public UserService (UserRepository repository, PasswordEncoder encoder, JWTService tokenService) {
         this.userRepository = repository;
         this.passwordEncoder = encoder;
+        this.tokenService = tokenService;
     }
     
     
@@ -56,7 +58,7 @@ public class UserService {
 
         User createdUser = userRepository.save(user);
 
-        UserCreationResponse response = new UserCreationResponse(createdUser.getId(), createdUser.getName(), "User created successfully!!", "token", LocalDate.now());
+        UserCreationResponse response = new UserCreationResponse(createdUser.getId(), createdUser.getName(), "User created successfully!!", tokenService.generateToken(createdUser), LocalDate.now());
 
 
         return response;
