@@ -1,6 +1,9 @@
 package com.github.projects.hotel_system.services;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -54,11 +57,43 @@ public class JWTService {
                 .build();
 
             DecodedJWT jwt = verifier.verify(token);
+            
+
+            LocalDateTime date = LocalDateTime.ofInstant(jwt.getExpiresAtAsInstant(), ZoneOffset.UTC);
+
+            if (date.isBefore(LocalDateTime.now())) {
+                // TODO proper loggin message here
+                return false;
+            }
+
+            System.out.println("Here");
+
         } catch (JWTVerificationException ex) {
             return false;
         }
 
         return true;
+
+    }
+
+    private DecodedJWT getDecodedJWT(String token) {
+        JWTVerifier verifier = JWT.require(algorithm)
+            .withIssuer(issuer).build();
+
+        return verifier.verify(token);
+    }
+
+    public Long extractIdFromToken(String token) {
+
+        try {
+            DecodedJWT jwt = getDecodedJWT(token);
+            Long id = Long.valueOf(jwt.getSubject());
+            return id;
+        } catch (Exception ex) {
+            System.out.println("Here");
+        }
+
+        return 0L;
 
     }
 

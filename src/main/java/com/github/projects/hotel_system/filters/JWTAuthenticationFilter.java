@@ -1,8 +1,17 @@
 package com.github.projects.hotel_system.filters;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.github.projects.hotel_system.models.User;
+import com.github.projects.hotel_system.services.AuthenticationService;
 import com.github.projects.hotel_system.services.JWTService;
+
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -16,9 +25,13 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
     
     private final JWTService jwtService;
+    private final AuthenticationService authenticationService;
 
-    public JWTAuthenticationFilter(JWTService service) {
+    private final List<String> exclusionAuthRoutes = List.of("/api/login", "/api/login/", "/api/user/create", "/api/user/create/");
+
+    public JWTAuthenticationFilter(JWTService service, AuthenticationService authenticationService) {
         this.jwtService = service;
+        this.authenticationService = authenticationService;
     }
 
     @Override
@@ -26,11 +39,23 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     
         throws ServletException, IOException {
             
-            if (!request.getRequestURI().equals( "/api/login")) {
+            if ( !exclusionAuthRoutes.contains(request.getRequestURI()) ) {
                 if (!validateToken(request, response)) {
                     return;
                 }
             }
+
+            else if (request.getRequestURI().equals("/api/user/create") || request.getRequestURI().equals("/api/user/create/")) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+            // Create Context Security Holder Context from User
+            UserDetails userDetails = authenticationService.findUserContext(request.getHeader("Authorization").replace("Bearer ", ""));
+
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
             filterChain.doFilter(request, response);
 

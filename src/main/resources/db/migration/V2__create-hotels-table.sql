@@ -7,6 +7,9 @@ CREATE TABLE hotels (
     floors TINYINT NOT NULL,
     rooms_no TINYINT NOT NULL,
     phone_number VARCHAR(35) NOT NULL,
-    description VARCHAR(50) NOT NULL
+    description VARCHAR(50) NOT NULL,
+    hotel_owner_id BIGINT NOT NULL,
 
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;;
+    FOREIGN KEY (hotel_owner_id) REFERENCES users(id)
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

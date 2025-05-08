@@ -1,6 +1,8 @@
 package com.github.projects.hotel_system.services;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -26,6 +28,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JWTService tokenService;
+    private final List<String> acceptedRoles = List.of("ADMIN", "USER", "OWNER");
 
     public UserService (UserRepository repository, PasswordEncoder encoder, JWTService tokenService) {
         this.userRepository = repository;
@@ -39,6 +42,10 @@ public class UserService {
 
         if (request.role().equals("ADMIN")) {
             throw new InvalidUserRequestException("User type on request can't be admin!!");
+        }
+
+        else if ( acceptedRoles.contains(request.role()) == false ) {
+            throw new InvalidUserRequestException("Request role is not allowed!!");
         }
 
         User user = new User();
@@ -78,6 +85,21 @@ public class UserService {
         return UserMapper.fromUserEntityToResponse(optionalUser.get());
 
     }
+
+    public UserResponse findUserResponseByEmail(String email) {
+
+        User user = userRepository.findByEmail(email).orElseThrow( () -> new UserNotFoundException("User not found!!"));
+
+        return UserMapper.fromUserEntityToResponse(user);
+
+    }
+
+    public User findUserByEmail(String email) {
+
+        return userRepository.findByEmail(email).orElseThrow( () -> new UserNotFoundException("User wasn't found!!"));
+
+    }
+
 
     // Update user
 
