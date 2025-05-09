@@ -2,6 +2,8 @@ package com.github.projects.hotel_system.services;
 
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -11,11 +13,11 @@ import org.springframework.stereotype.Service;
 
 import com.github.projects.hotel_system.dtos.hotel.HotelCreationRequest;
 import com.github.projects.hotel_system.dtos.hotel.HotelCreationResponse;
+import com.github.projects.hotel_system.dtos.hotel.HotelResponse;
 import com.github.projects.hotel_system.dtos.user.UserResponse;
 import com.github.projects.hotel_system.exceptions.InvalidCreationRequestException;
 import com.github.projects.hotel_system.mappers.HotelMapper;
 import com.github.projects.hotel_system.models.Hotel;
-import com.github.projects.hotel_system.models.User;
 import com.github.projects.hotel_system.repositories.HotelRepository;
 
 @Service
@@ -70,6 +72,23 @@ public class HotelService {
         return user.role().equals("OWNER");
 
 
+    }
+
+    public List<HotelResponse> getHotels() {
+        
+        List<Hotel> hotels = hotelRepository.findAll();
+
+        if (hotels.isEmpty()) {
+            return List.of();
+        }
+
+        
+        List<HotelResponse> responses = 
+            hotels.stream()
+            .map(response -> HotelMapper.fromHotelToHotelResponse(response))
+            .collect(Collectors.toList());
+
+        return responses;
     }
 
 

@@ -38,17 +38,19 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) 
     
         throws ServletException, IOException {
+
+            if (exclusionAuthRoutes.contains(request.getRequestURI())) {
+                filterChain.doFilter(request, response);
+                return;
+            }
             
-            if ( !exclusionAuthRoutes.contains(request.getRequestURI()) ) {
+            else if ( !exclusionAuthRoutes.contains(request.getRequestURI()) ) {
                 if (!validateToken(request, response)) {
                     return;
                 }
             }
 
-            else if (request.getRequestURI().equals("/api/user/create") || request.getRequestURI().equals("/api/user/create/")) {
-                filterChain.doFilter(request, response);
-                return;
-            }
+
 
             // Create Context Security Holder Context from User
             UserDetails userDetails = authenticationService.findUserContext(request.getHeader("Authorization").replace("Bearer ", ""));
