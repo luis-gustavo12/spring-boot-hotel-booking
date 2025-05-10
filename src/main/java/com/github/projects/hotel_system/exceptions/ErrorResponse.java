@@ -3,6 +3,9 @@ package com.github.projects.hotel_system.exceptions;
 import java.time.Instant;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public record ErrorResponse(
     String message,
     int statusCode,

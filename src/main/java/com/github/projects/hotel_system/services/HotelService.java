@@ -16,6 +16,7 @@ import com.github.projects.hotel_system.dtos.hotel.HotelCreationResponse;
 import com.github.projects.hotel_system.dtos.hotel.HotelResponse;
 import com.github.projects.hotel_system.dtos.user.UserResponse;
 import com.github.projects.hotel_system.exceptions.InvalidCreationRequestException;
+import com.github.projects.hotel_system.exceptions.ResourceNotFoundException;
 import com.github.projects.hotel_system.mappers.HotelMapper;
 import com.github.projects.hotel_system.models.Hotel;
 import com.github.projects.hotel_system.repositories.HotelRepository;
@@ -89,6 +90,14 @@ public class HotelService {
             .collect(Collectors.toList());
 
         return responses;
+    }
+
+    public HotelResponse getHotel(Long id) {
+
+        Hotel hotel = hotelRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Hotel not found!!"));
+
+        return HotelMapper.fromHotelToHotelResponse(hotel);
+
     }
 
 

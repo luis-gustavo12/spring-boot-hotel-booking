@@ -51,12 +51,12 @@ public class HotelController {
             .body(hotels);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping({"/{id}", "/{id}/"})
     public ResponseEntity<?> listSingleHotel(@PathVariable String id) {
 
-        //HotelResponse hotel = service.
+        HotelResponse response = service.getHotel(Long.parseLong(id));
 
-        return null;
+        return ResponseEntity.ok().body(response);
     }
     
     

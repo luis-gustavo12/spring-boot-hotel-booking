@@ -66,7 +66,6 @@ public class JWTService {
                 return false;
             }
 
-            System.out.println("Here");
 
         } catch (JWTVerificationException ex) {
             return false;
@@ -91,6 +90,7 @@ public class JWTService {
             return id;
         } catch (Exception ex) {
             System.out.println("Here");
+            ;
         }
 
         return 0L;
