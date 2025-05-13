@@ -27,11 +27,13 @@ public class AuthenticationService implements UserDetailsService {
     private final BCryptPasswordEncoder encoder;
     private final UserRepository userRepository;
     private final JWTService jwtService;
+    private final EmailService emailService;
 
-    public AuthenticationService(BCryptPasswordEncoder encoder, UserRepository repository, JWTService jwtService) {
+    public AuthenticationService(BCryptPasswordEncoder encoder, UserRepository repository, JWTService jwtService, EmailService emailService) {
         this.encoder = encoder;
         this.userRepository = repository;
         this.jwtService = jwtService;
+        this.emailService = emailService;
     }
 
     // Authenticate login
@@ -48,6 +50,8 @@ public class AuthenticationService implements UserDetailsService {
         if (!encoder.matches(request.password(), user.getPassword())) {
             throw new UserNotFoundException("Password doesn't match!!");
         }
+
+        emailService.sendHtmlEmail("example@example.com", "My Subject", "Something cool here");
 
         return new LoginResponse(
             "Authenticated Successfully!!", 
