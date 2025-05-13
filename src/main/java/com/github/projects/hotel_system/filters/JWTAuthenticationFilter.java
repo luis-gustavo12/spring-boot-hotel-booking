@@ -1,15 +1,13 @@
 package com.github.projects.hotel_system.filters;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
-import com.github.projects.hotel_system.models.User;
+
 import com.github.projects.hotel_system.services.AuthenticationService;
 import com.github.projects.hotel_system.services.JWTService;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -44,7 +42,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
             
-            else if ( !exclusionAuthRoutes.contains(request.getRequestURI()) ) {
+            else {
                 if (!validateToken(request, response)) {
                     return;
                 }
