@@ -1,14 +1,15 @@
+
+
+
 package com.github.projects.hotel_system.services;
 
-import java.util.Collection;
+
 import java.util.Collections;
 import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -36,6 +37,16 @@ public class AuthenticationService implements UserDetailsService {
         this.emailService = emailService;
     }
 
+    
+    /** 
+     * 
+     * Authenticate the user based on email and password
+     * 
+     * @param request
+     * @return LoginResponse -> Proper client message with token
+     * @throws UserNotFoundException -> If user not found, Spring handles it
+     * 
+     */
     // Authenticate login
     public LoginResponse authenticate(LoginRequest request) {
 
@@ -51,7 +62,7 @@ public class AuthenticationService implements UserDetailsService {
             throw new UserNotFoundException("Password doesn't match!!");
         }
 
-        emailService.sendHtmlEmail("example@example.com", "My Subject", "Something cool here");
+        sendUserAuthenticationEmail(user);
 
         return new LoginResponse(
             "Authenticated Successfully!!", 
@@ -61,6 +72,14 @@ public class AuthenticationService implements UserDetailsService {
 
     }
 
+    /**
+     * 
+     * Gets the user context from Spring ContexHolder.
+     * 
+     * @param token The token which has the informations of the User
+     * @return The UserDetails object
+     * @see Spring Security Context Holder
+     */
     public UserDetails findUserContext(String token) {
         
         // Get the user from the token
@@ -74,6 +93,14 @@ public class AuthenticationService implements UserDetailsService {
         
     }
 
+    /**
+     * 
+     * Load UserDetails from email
+     * 
+     * @param email The user's email
+     * 
+     * 
+     */
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         
@@ -86,6 +113,25 @@ public class AuthenticationService implements UserDetailsService {
             user.getPassword(),
             Collections.singletonList(authority)
         );
+
+    }
+
+    /**
+     * 
+     * Send email to the user email, for when the authentication is done
+     * 
+     * @param user The authenticated user
+     */
+    private void sendUserAuthenticationEmail(User user) {
+
+
+        String body = String.format("<p>Hello, %s</p>", user.getName());
+        body += "<p> We've noticed a new login attempt to your account</p>";
+        body += "<p>If it was you, please ignore this message. Otherwise, review your credentials, and change it as soon as possible</p>";
+        body += "<p>Best regards, Security Team</p>";
+
+
+        emailService.sendHtmlEmail(user.getEmail(), "New Login Attempt", body);
 
     }
 

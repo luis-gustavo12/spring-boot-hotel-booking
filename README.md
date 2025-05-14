@@ -24,6 +24,7 @@ A web application for searching hotels, viewing room availability, and booking r
 - Spring Security
 - MySQL
 - Lombok
+- Spring Mail
 
 ---
 

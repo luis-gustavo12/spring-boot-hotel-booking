@@ -2,6 +2,7 @@ package com.github.projects.hotel_system.services;
 
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import jakarta.mail.MessagingException;
@@ -16,6 +17,7 @@ public class EmailService {
         this.mailSender = sender;
     }
 
+    @Async
     public void sendHtmlEmail(String to, String subject, String htmlBody) {
 
         try {
