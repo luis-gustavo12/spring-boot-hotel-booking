@@ -7,6 +7,8 @@ package com.github.projects.hotel_system.services;
 import java.util.Collections;
 import java.util.Optional;
 
+import javax.swing.Spring;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -31,12 +33,15 @@ public class AuthenticationService implements UserDetailsService {
     private final UserRepository userRepository;
     private final JWTService jwtService;
     private final EmailService emailService;
+    private final TokenVerificationService tokenVerificationService;
 
-    public AuthenticationService(BCryptPasswordEncoder encoder, UserRepository repository, JWTService jwtService, EmailService emailService) {
+    public AuthenticationService(BCryptPasswordEncoder encoder, UserRepository repository, 
+    JWTService jwtService, EmailService emailService, TokenVerificationService tokenVerificationService) {
         this.encoder = encoder;
         this.userRepository = repository;
         this.jwtService = jwtService;
         this.emailService = emailService;
+        this.tokenVerificationService = tokenVerificationService;
     }
 
     
@@ -52,17 +57,22 @@ public class AuthenticationService implements UserDetailsService {
     // Authenticate login
     public LoginResponse authenticate(LoginRequest request) {
 
-        Optional<User> optionalUser = userRepository.findByEmail(request.email());
 
-        if (!optionalUser.isPresent()) {
-            throw new UserNotFoundException("User not found!!");
-        } 
-        
-        User user = optionalUser.get();
+        User user = userRepository.findByEmail(request.email()).orElseThrow( () -> new UserNotFoundException("User not found!!") );
         
         if (!encoder.matches(request.password(), user.getPassword())) {
             throw new UserNotFoundException("Password doesn't match!!");
         }
+
+        // If user exists, but isn't active, generate email for confirming it
+
+        if (!user.isUserIsConfirmed()) {
+            sendConfirmationEmail(user);
+            tokenVerificationService.saveToken(jwtService.generateToken(user), user);
+            return new LoginResponse("Please, check your inbox to proceed", 200, null);
+        }
+
+
 
         sendUserAuthenticationEmail(user);
 
@@ -73,6 +83,21 @@ public class AuthenticationService implements UserDetailsService {
         );
 
     }
+
+    private void sendConfirmationEmail(User user) {
+
+        String token = jwtService.generateToken(user);
+        String email = String.format("<p>Dear %s, we need you to verify", user.getName() +
+        " your account!!</p>");
+        email += String.format("<a href=\"localhost:8080/api/confirm/%s\">Click Here<a>", token);
+        email += "<br>";
+        email += token;
+        
+        emailService.sendHtmlEmail(user.getEmail(), "Confirm your email!!", email);
+
+
+    }
+
 
     /**
      * 

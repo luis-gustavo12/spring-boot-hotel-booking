@@ -37,7 +37,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     
         throws ServletException, IOException {
 
-            if (exclusionAuthRoutes.contains(request.getRequestURI())) {
+            if (exclusionAuthRoutes.contains(request.getRequestURI()) || request.getRequestURI().contains("/api/confirm")) {
                 filterChain.doFilter(request, response);
                 return;
             }
@@ -47,7 +47,6 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
                     return;
                 }
             }
-
 
 
             // Create Context Security Holder Context from User

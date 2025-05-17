@@ -97,5 +97,21 @@ public class JWTService {
 
     }
 
+    public LocalDateTime extractCreatedAt(String token) {
+
+        DecodedJWT decodedJWT = getDecodedJWT(token);
+        return LocalDateTime.ofInstant(decodedJWT.getIssuedAt().toInstant(), ZoneOffset.UTC);
+
+    }
+
+    public LocalDateTime extractExpirationDateTime(String token) {
+
+        DecodedJWT decodedJWT = getDecodedJWT(token);
+        return LocalDateTime.ofInstant(decodedJWT.getExpiresAtAsInstant(), ZoneOffset.UTC);
+
+    }
+
+
+
 
 }

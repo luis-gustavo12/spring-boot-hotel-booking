@@ -17,6 +17,7 @@ public class UserBuilder {
     private String address;
     private String zipCode;
     private boolean isActive;
+    private boolean isConfirmed;
     
     public static UserBuilder builder () {
         return new UserBuilder();
@@ -72,6 +73,11 @@ public class UserBuilder {
         return this;
     }
 
+    public UserBuilder isConfirmed (boolean value) {
+        this.isConfirmed(value);
+        return  this;
+    }
+
     public User build() {
         return new User(
             this.id,
@@ -84,7 +90,8 @@ public class UserBuilder {
             this.role,
             this.address,
             this.zipCode,
-            this.isActive
+            this.isActive,
+            this.isConfirmed
         );
     }
     

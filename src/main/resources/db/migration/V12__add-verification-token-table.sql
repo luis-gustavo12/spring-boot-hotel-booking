@@ -1,0 +1,12 @@
+
+
+CREATE TABLE verification_tokens (
+
+    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    token VARCHAR(255) NOT NULL UNIQUE,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    expires_at DATETIME NOT NULL,
+    user_id BIGINT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    valid BOOLEAN NOT NULL DEFAULT 0
+);

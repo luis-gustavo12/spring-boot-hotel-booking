@@ -54,4 +54,7 @@ public class User {
     @Column(name = "is_active")
     private boolean isActive;
 
+    @Column(name = "user_is_confirmed")
+    private boolean userIsConfirmed;
+
 }

@@ -16,8 +16,10 @@ import com.github.projects.hotel_system.dtos.user.UserResponse;
 import com.github.projects.hotel_system.dtos.user.UserUpdateRequest;
 import com.github.projects.hotel_system.dtos.user.UserUpdateResponse;
 import com.github.projects.hotel_system.exceptions.InvalidUserRequestException;
+import com.github.projects.hotel_system.exceptions.ResourceNotFoundException;
 import com.github.projects.hotel_system.exceptions.UserNotFoundException;
 import com.github.projects.hotel_system.mappers.UserMapper;
+import com.github.projects.hotel_system.models.TokenVerification;
 import com.github.projects.hotel_system.models.User;
 import com.github.projects.hotel_system.repositories.UserRepository;
 
@@ -26,13 +28,17 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JWTService tokenService;
+    private final JWTService jwtService;
+    private final EmailService emailService;
+    private final TokenVerificationService tokenVerificationService;
     private final List<String> acceptedRoles = List.of("ADMIN", "USER", "OWNER");
 
-    public UserService (UserRepository repository, PasswordEncoder encoder, JWTService tokenService) {
+    public UserService (UserRepository repository, PasswordEncoder encoder, EmailService emailService, JWTService jwtService, TokenVerificationService tokenVerificationService) {
         this.userRepository = repository;
         this.passwordEncoder = encoder;
-        this.tokenService = tokenService;
+        this.emailService = emailService;
+        this.jwtService = jwtService;
+        this.tokenVerificationService = tokenVerificationService;
     }
     
     
@@ -61,11 +67,13 @@ public class UserService {
         user.setAddress(request.address());
         user.setActive(true);
         user.setZipCode(request.zipCode());
+        user.setUserIsConfirmed(false);
 
         User createdUser = userRepository.save(user);
 
-        UserCreationResponse response = new UserCreationResponse(createdUser.getId(), createdUser.getName(), "User created successfully!!", tokenService.generateToken(createdUser), LocalDate.now());
+        UserCreationResponse response = new UserCreationResponse(createdUser.getId(), createdUser.getName(), "Please, check your email to confirm your account!!", LocalDate.now());
 
+        emailService.sendHtmlEmail(createdUser.getEmail(), "Confirm your account", this.generateConfirmEmailHTML(user));
 
         return response;
 
@@ -148,6 +156,54 @@ public class UserService {
         return new Response("User deleted successfully", HttpStatus.OK.value());
 
         
+
+    }
+
+    private String generateConfirmEmailHTML(User user) {
+
+        String email = "<p>Dear " + user.getName() + ", please confirm your account clicking the link below!! </p>"; 
+        String token = jwtService.generateToken(user);
+        email += String.format("<a>localhost:8080/api/confirm/%s</a>", token);
+        tokenVerificationService.saveToken(token, user);
+
+
+        return email;
+    }
+
+    public void updateUserConfirmation(User user) {
+
+        userRepository.save(user);
+
+    }
+
+    /**
+     * 
+     * Validate the incoming token from the URL, and sets the response attributes
+     * 
+     * @param token -> the token from the URL path
+     * @return A response indicating success for the token, where on TokenVerification table,
+     * it turns valid into true, and on users, isConfirmed into true as well
+     */
+    public Response validateToken(String token) {
+
+        TokenVerification verification = 
+            tokenVerificationService.findTokenByTokenNameOptional(token)
+            .orElseThrow( 
+                () -> new ResourceNotFoundException
+                ("Internal error when validating your token!! Please, contact support team!!")
+            );
+
+        verification.setValid(true);
+        tokenVerificationService.setTokenValidation(verification);
+
+        User user = tokenVerificationService.getUserByToken(token);
+        user.setUserIsConfirmed(true);
+
+        userRepository.save(user);
+
+        return new Response("Your account is now valid you can log in!!", 200);
+
+
 
     }
 
