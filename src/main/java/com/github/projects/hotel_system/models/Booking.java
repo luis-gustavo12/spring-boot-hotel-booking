@@ -1,18 +1,25 @@
 package com.github.projects.hotel_system.models;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "bookings")
+@Getter
+@Setter
 public class Booking {
     
 
@@ -50,7 +57,12 @@ public class Booking {
     private int kidsNumber;
 
     @Column(name = "total_price")
-    private double totalPrice;
+    private BigDecimal totalPrice;
+
+    
+    @ManyToOne
+    @JoinColumn(name = "booking_status_id")
+    private BookingStatus bookingStatus;
 
     
 

@@ -8,8 +8,10 @@ import java.util.Collections;
 import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -132,6 +134,27 @@ public class AuthenticationService implements UserDetailsService {
 
 
         emailService.sendHtmlEmail(user.getEmail(), "New Login Attempt", body);
+
+    }
+
+    public User getCurrentAuthenticatedUser() {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object obj = authentication.getPrincipal();
+            if (obj instanceof UserDetails) {
+                UserDetails userDetails = (UserDetails) obj;
+                try {
+                    return userRepository.findByEmail(userDetails.getUsername()).orElseThrow( () -> new UserNotFoundException("User not found!!"));
+                } catch (Exception e) {
+                    throw new RuntimeException("Internal Error!!");
+                }
+
+            }
+        }
+
+        return null;
 
     }
 

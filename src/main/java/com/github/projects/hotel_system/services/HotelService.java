@@ -72,7 +72,6 @@ public class HotelService {
 
         return user.role().equals("OWNER");
 
-
     }
 
     public List<HotelResponse> getHotels() {
@@ -98,6 +97,10 @@ public class HotelService {
 
         return HotelMapper.fromHotelToHotelResponse(hotel);
 
+    }
+
+    public Hotel getHotelEntity(Long id) {
+        return hotelRepository.findById(id).orElse(null);
     }
 
 
